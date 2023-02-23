@@ -3,6 +3,7 @@ import { Clock } from '../../components/Clock'
 import styled from 'styled-components'
 import DocketList from '../../components/DocketList'
 import Alert from '../../components/Alert'
+import ToggleCompleted from '../../components/ToggleCompleted'
 
 // load todos into state from localStorage
 const getTodosOnRefresh = () => {
@@ -17,7 +18,6 @@ const getTodosOnRefresh = () => {
 const Dockets = () => {
   const [entry, setEntry] = useState()
   const [todos, setTodos] = useState(getTodosOnRefresh())
-
   const [isEditing, setIsEditing] = useState(false)
   const [editID, setEditID] = useState(null)
   const [alert, setAlert] = useState({
@@ -51,7 +51,11 @@ const Dockets = () => {
       showAlert(true, 'success', 'item edited')
     } else {
       showAlert(true, 'success', 'item added to docket!')
-      const newEntry = { id: new Date().getTime().toString(), title: entry }
+      const newEntry = {
+        id: new Date().getTime().toString(),
+        completed: false,
+        title: entry,
+      }
       setTodos([...todos, newEntry])
       setEntry('')
     }
@@ -79,6 +83,19 @@ const Dockets = () => {
     setIsEditing(true)
     setEditID(id)
     setEntry(specificTodo.title)
+  }
+
+  // check if todo item is completed
+  const handleCheckboxChange = (itemId) => {
+    setTodos(
+      todos.map((todo) => {
+        if (todo.id === itemId) {
+          return { ...todo, completed: !todo.completed }
+        }
+        return todo
+      })
+    )
+    setAlert(true, 'completed', 'todo completed!')
   }
 
   // console.log(todos)
@@ -112,10 +129,12 @@ const Dockets = () => {
         </form>
         {todos.length > 0 && (
           <div className='todo__container'>
+            <ToggleCompleted />
             <DocketList
               items={todos}
               removeTodo={removeTodo}
               editTodos={editTodos}
+              onCheckboxChange={handleCheckboxChange}
             />
             <button className='clear__dockets' onClick={clearTodos}>
               clear docket!

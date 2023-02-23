@@ -74,6 +74,10 @@ p {
   color: #222;
 }
 
+.alert-completed {
+  background-color: yellow;
+}
+
 /* #root {
   max-width: 1280px;
   margin: 0 auto;

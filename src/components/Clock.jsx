@@ -88,7 +88,9 @@ export class Clock extends React.Component {
           </div>
         </div>
         <div className='digital'>
-          Good Afternoon {this.state.date.toLocaleTimeString()}
+          <h4 style={{ color: 'white' }}>
+            Good Day! {this.state.date.toLocaleTimeString()}
+          </h4>
         </div>
       </div>
     )
