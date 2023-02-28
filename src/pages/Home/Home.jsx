@@ -23,6 +23,7 @@ const Layout = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
+
   a {
     font-weight: 500;
     color: #fff;
@@ -64,5 +65,16 @@ const Layout = styled.div`
   button:focus,
   button:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
+  }
+
+  @media screen and (max-width: 500px) {
+    h1 {
+      color: #646cff;
+    }
+    p {
+      width: 90vw;
+      text-align: center;
+      /* color: #646cff; */
+    }
   }
 `

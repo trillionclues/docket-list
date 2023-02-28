@@ -15,16 +15,36 @@ const getTodosOnRefresh = () => {
   }
 }
 
+// load completedTodos
+const getCompletedTodosOnRefresh = () => {
+  let completedTodos = localStorage.getItem('completedTodo')
+  if (completedTodos) {
+    return JSON.parse(completedTodos)
+  } else {
+    return []
+  }
+}
+
 const Dockets = () => {
   const [entry, setEntry] = useState()
   const [todos, setTodos] = useState(getTodosOnRefresh())
+  const [completedTodo, setCompletedTodo] = useState(
+    getCompletedTodosOnRefresh()
+  )
   const [isEditing, setIsEditing] = useState(false)
   const [editID, setEditID] = useState(null)
+  const [showCompleted, setShowCompleted] = useState(false)
+  const [activeTab, setActiveTab] = useState(1)
   const [alert, setAlert] = useState({
     show: false,
     msg: '',
     type: '',
   })
+
+  // check tab on toggle
+  const handleTabClick = (index) => {
+    setActiveTab(index)
+  }
 
   const handleTodoSubmit = (e) => {
     e.preventDefault()
@@ -33,7 +53,7 @@ const Dockets = () => {
     if (!entry) {
       // setAlert({ show: true, msg: 'Please enter details!', type: 'danger' })
       // return show alert
-      showAlert(true, 'danger', 'Please enter details')
+      showAlert(true, 'danger', 'Please enter docket')
     } else if (entry && isEditing) {
       // deal with edit
       // check if todo to be edited matches with edit ID of the editTodo function
@@ -54,6 +74,7 @@ const Dockets = () => {
       const newEntry = {
         id: new Date().getTime().toString(),
         completed: false,
+        stillActive: false,
         title: entry,
       }
       setTodos([...todos, newEntry])
@@ -96,14 +117,38 @@ const Dockets = () => {
       })
     )
     setAlert(true, 'completed', 'todo completed!')
+    if (completedTodo.includes(id)) {
+      setCompletedTodo(completedTodo.filter((complete) => complete !== id))
+    } else {
+      setCompletedTodo([...completedTodo, id])
+    }
   }
 
-  // console.log(todos)
+  // check if completed or not
+  const completeAll = () => {
+    setTodos(
+      todos.map((todo) => {
+        return { ...todo, completed: true }
+      })
+    )
+  }
 
-  // store todos to localStorage and watch changes to todo list
-  useEffect(() => {
-    localStorage.setItem('todos', JSON.stringify(todos))
-  }, [todos])
+  const incompleteALl = () => {
+    setTodos(
+      todos.map((todo) => {
+        return { ...todos, completed: false }
+      })
+    )
+  }
+
+  const filteredTasks =
+    // console.log(todos)
+
+    // store todos to localStorage and watch changes to todo list
+    useEffect(() => {
+      localStorage.setItem('todos', JSON.stringify(todos))
+      localStorage.setItem('completedTodo', JSON.stringify(completedTodo))
+    }, [todos, completedTodo])
 
   return (
     <Docket className='docket'>
@@ -129,9 +174,16 @@ const Dockets = () => {
         </form>
         {todos.length > 0 && (
           <div className='todo__container'>
-            <ToggleCompleted />
+            <ToggleCompleted
+              activeTab={activeTab}
+              handleTabClick={handleTabClick}
+            />
             <DocketList
+              completedTodo={completedTodo}
+              setCompletedTodo={setCompletedTodo}
+              activeTab={activeTab}
               items={todos}
+              setItems={setTodos}
               removeTodo={removeTodo}
               editTodos={editTodos}
               onCheckboxChange={handleCheckboxChange}

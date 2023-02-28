@@ -2,25 +2,148 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { FaEdit, FaTrash } from 'react-icons/fa'
 
-const DocketList = ({ items, removeTodo, editTodos, onCheckboxChange }) => {
-  const [completedTodo, setCompletedTodo] = useState([])
+// function ParentComponent() {
+//   const [items, setItems] = useState([
+//     { id: 1, title: 'Item 1', completed: false, stillActive: true },
+//     { id: 2, title: 'Item 2', completed: false, stillActive: false },
+//     { id: 3, title: 'Item 3', completed: true, stillActive: true },
+//     { id: 4, title: 'Item 4', completed: false, stillActive: true }
+//   ]);
+//   const [completedTodo, setCompletedTodo] = useState([]);
+
+//   const handleCheckboxChange = (id) => {
+//     if (completedTodo.includes(id)) {
+//       setCompletedTodo(completedTodo.filter((item) => item !== id));
+//       setItems(
+//         items.map((item) =>
+//           item.id === id ? { ...item, completed: false } : item
+//         )
+//       );
+//     } else {
+//       setCompletedTodo([...completedTodo, id]);
+//       setItems(
+//         items.map((item) =>
+//           item.id === id ? { ...item, completed: true } : item
+//         )
+//       );
+//     }
+//   };
+
+//   const allItems = items;
+//   const activeItems = items.filter((item) => item.stillActive);
+//   const completedItems = items.filter((item) => item.completed);
+
+//   const [activeTab, setActiveTab] = useState('All');
+
+//   const handleTabClick = (tab) => {
+//     setActiveTab(tab);
+//   };
+
+//   let displayedItems;
+//   if (activeTab === 'All') {
+//     displayedItems = allItems;
+//   } else if (activeTab === 'Active') {
+//     displayedItems = activeItems;
+//   } else {
+//     displayedItems = completedItems;
+//   }
+
+//   return (
+//     <div>
+//       <TabLayout activeTab={activeTab} handleTabClick={handleTabClick} />
+//       <div className="content">
+//         {displayedItems.map((item) => {
+//           const { id, title, completed } = item;
+//           return (
+//             <div key={id} className='todo__item'>
+//               <label className='form-control'>
+//                 <input
+//                   type='checkbox'
+//                   name='checkbox'
+//                   checked={completedTodo.includes(item.id)}
+//                   onChange={() => handleCheckboxChange(item.id)}
+//                   className='todo__checkbox'
+//                   id='checkInput'
+//                 />
+//               </label>
+//               <p
+//                 className='todo__text'
+//                 style={{
+//                   textDecoration: completed ? 'line-through' : 'none',
+//                   color: completed ? 'grey' : '',
+//                 }}
+//               >
+//                 {title}
+//               </p>
+//             </div>
+//           );
+//         })}
+//       </div>
+//     </div>
+//   );
+// }
+
+// function TabLayout(props) {
+//   const { activeTab, handleTabClick } = props;
+
+//   return (
+//     <div>
+//       <button
+//         className={activeTab === 'All' ? 'active' : ''}
+//         onClick={() => handleTabClick('All')}
+//       >
+//         All
+//       </button>
+//       <button
+//         className={activeTab === 'Active' ? 'active' : ''}
+//         onClick={() => handleTabClick('Active')}
+//       >
+//         Active
+//       </button>
+//       <button
+//         className={activeTab === 'Completed' ? 'active' : ''}
+//         onClick={() => handleTabClick
+
+const DocketList = (props) => {
+  const {
+    items,
+    removeTodo,
+    editTodos,
+    onCheckboxChange,
+    activeTab,
+    completedTodo,
+    setCompletedTodo,
+  } = props
+
   // console.log(items)
 
   const handleCheckboxChange = (id) => {
-    if (completedTodo.includes(id)) {
-      setCompletedTodo(completedTodo.filter((complete) => complete !== id))
+    const todoIndex = items.findIndex((item) => item.id === id)
+    const updatedItems = [...items]
+    updatedItems[todoIndex].completed = !updatedItems[todoIndex].completed
+
+    if (updatedItems[todoIndex].completed) {
+      setCompletedTodo([...completedTodo, updatedItems[todoIndex].id])
     } else {
-      setCompletedTodo([...completedTodo, id])
+      setCompletedTodo(completedTodo.filter((item) => item.id !== id))
     }
-    onCheckboxChange(id)
+    onCheckboxChange(updatedItems)
   }
+
+  const activeTodo = items.filter((item) => item.completed)
+  // const completedTodos = completedTodo.filter((item) => item.completed)
+
+  const completedTodos = completedTodo.filter((itemId) =>
+    items.find((item) => item.id === itemId?.completed)
+  )
+
+  const todosToDisplay =
+    activeTab === 1 ? activeTodo : activeTab === 2 ? completedTodos : items
 
   return (
     <List className='todo__list'>
-      {items.map((item) => {
-        const { id, title, completed } = item
-        console.log(completed)
-        console.log(title)
+      {todosToDisplay.map((item) => {
+        const { id, title, completed, stillActive } = item
         return (
           <div key={id} className='todo__item'>
             <label className='form-control'>
@@ -84,6 +207,7 @@ const List = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
+    /* color: red; */
     justify-content: space-between;
     width: 100%;
     height: 50px;
@@ -165,8 +289,10 @@ const List = styled.div`
 
     .todo__text {
       width: 100%;
-      padding: 0 1rem;
+      padding: 0 1rem 0 1rem;
+
       font-size: 1.2rem;
+      align-items: center;
     }
 
     .todo__icons {
